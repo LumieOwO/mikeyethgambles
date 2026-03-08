@@ -3,6 +3,7 @@ export type Icreator = {
     code: string;
     primaryColor: string;
     description: string;
+    logoUrl?: string;
     socials: {
         cardBackground: string;
         icon: string;
@@ -10,6 +11,16 @@ export type Icreator = {
         href: string;
     }[];
     cid?: string;
+    bonuses?: {
+        id: string;
+        casino: string;
+        code: string;
+        href: string;
+        mainBonus?: string;
+        extraBonus?: string;
+        logoUrl?: string;
+        color?: string;
+    }[];
     websiteLeaderboards: {
         primaryColor: string,
         href: string,
@@ -21,6 +32,11 @@ export type Icreator = {
             endingDate: Date
         }
         apiKey?: string
+        wageredDetails?: {
+            wagerName?: string;
+            shouldShowIcon?: boolean;
+        }
+        rewardLines?: string[];
     }[]
 };
 export type IYoutubeFeed = {

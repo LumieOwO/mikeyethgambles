@@ -28,7 +28,8 @@ function leaderboardConfig(
     end: string,
     apiKey: string,
     prizes: Record<number, number> | null,
-    wageredDetails: WageredDetails = {}
+    wageredDetails: WageredDetails = {},
+    rewardLines: string[] = []
 ) {
     return {
         ...integrations[site].frontendDetails(code),
@@ -43,74 +44,56 @@ function leaderboardConfig(
             shouldShowIcon: true,
             ...wageredDetails,
         },
+        rewardLines,
     };
 }
 
-export const creators: Record<string, Icreator> = {
-    sack: {
-        name: "Sack",
-        code: "Sack",
-        primaryColor: "#5170FF",
-        description:
-            "I've been creating gambling content online since 2021. Since starting I've set the bar in my niche, for Consistency, legitimacy, and Transparency. I strive to give all users a premium and worthwhile experience no matter the tier their rolling at.",
-        socials: [
-            createSocial("youtube", "@SackGambles", "https://www.youtube.com/@sackgambles"),
-            createSocial("kick", "@SackGambles", "https://kick.com/SackGambles"),
-        ],
-        websiteLeaderboards: [
-            leaderboardConfig(
-                "goldpump-com",
-                "Sack",
-                "2025-12-17T05:00:00.000Z",
-                "2026-01-01T05:00:00.000Z",
-                "your-goldpump-api-key-here",
-                {
-                    1: 230_000,
-                    2: 145_000,
-                    3: 117_500,
-                    4: 80_000,
-                    5: 50_000,
-                    6: 45_000,
-                    7: 32_500,
-                }, {
-                //wagerName: "$",
-                shouldShowIcon: true,
-            }
-            ),
-            leaderboardConfig(
-                "chicken-gg",
-                "Sack",
-                "2025-12-19T05:00:00.000Z", "2025-12-26T05:00:00.000Z",
-                "d65f7bad17ddf19b16d3124013ae5a44",
-           {
-                    1: 0,
-                    2: 0,
-                    3: 0,
-                    4: 0,
-                    5: 0,
+// ============================================================
+// CLYDE'S CONFIG — Edit everything below to customize your site
+// ============================================================
 
-                },
-                {
-                    wagerName: "XP",
-                    shouldShowIcon: false,
-                }
-            ),leaderboardConfig(
-                "shock-com",
-                "Sack",
-                "2026-01-06T05:00:00.000Z", "2026-01-13T05:00:00.000Z",
-                "6557c117-2429-489e-9078-af4b1b70e70a",
-                {
-           1: 0,
-                    2: 0,
-                    3: 0,
-                    4: 0,
-                    5: 0,
+export const creator: Icreator = {
+    // --- Your name and referral code ---
+    name: "Clyde",
+    code: "Clyde",
 
-                },
-                {
-                    shouldShowIcon: true,
-                }
-            ),
-        ],
-    },
+    // --- Your brand color (hex) ---
+    primaryColor: "#5170FF",
+
+    // --- Your bio / description ---
+    description:
+        "Exclusive Rewards, Giveaways & Leaderboards",
+
+    // --- Your social links (add/remove as needed) ---
+    socials: [
+        
+        // createSocial("twitter", "@ClydeGambles", "https://twitter.com/ClydeGambles"),
+        // createSocial("discord", "ClydeGambles", "https://discord.gg/your-invite"),
+    ],
+
+    // --- Your leaderboards (add/remove/edit as needed) ---
+    // Each leaderboardConfig call: (site, code, startDate, endDate, apiKey, prizes, wageredDetails)
+    websiteLeaderboards: [
+        /*         leaderboardConfig(
+                    "goldpump-com",
+                    "Clyde",
+                    "2025-12-17T05:00:00.000Z",         // <-- start date
+                    "2026-01-01T05:00:00.000Z",          // <-- end date
+                    "your-goldpump-api-key-here",         // <-- API key
+                    {                                     // <-- prizes per place (set to null for no prizes)
+                        1: 230_000,
+                        2: 145_000,
+                        3: 117_500,
+                        4: 80_000,
+                        5: 50_000,
+                        6: 45_000,
+                        7: 32_500,
+                    },
+                    {
+                        shouldShowIcon: true,
+                    },
+                    ["100% AFFILIATE KICKBACK", "15% DEPOSIT BONUS"]
+                ), */
+
+    ],
 };

@@ -1,12 +1,15 @@
 import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { redis } from '$lib/server/redis';
-import { creators } from "$lib/server/data/creators";
+import { creator } from "$lib/server/data/creators";
 import { integrations } from '$lib/server/data/integrations';
 import { normalizeSiteName } from '$lib/utils';
 import type { ILeaderboardEntry } from '$lib/types';
+import { adminKeys } from '$lib/server/admin/redis-keys';
 
-const getRedisKey = (tenantId: string, leaderboardId: string) =>
-    `tenant:${tenantId}:leaderboard:${leaderboardId}`;
+const TENANT_ID = "clyde";
+
+const getRedisKey = (leaderboardId: string) =>
+    `tenant:${TENANT_ID}:leaderboard:${leaderboardId}`;
 
 const fetchLeaderboardData = async (
     apiKey: string,
@@ -28,25 +31,62 @@ function anonymizeName(name: string | undefined): string {
 
 export const GET: RequestHandler = async ({ params, url }) => {
     try {
-        const { tenantId, leaderboardId } = params;
-        if (!tenantId || !leaderboardId) throw error(400, 'Missing parameters');
+        const { leaderboardId } = params;
+        if (!leaderboardId) throw error(400, 'Missing parameters');
 
-        const tenant = creators[tenantId];
-        if (!tenant) throw error(404, 'Tenant not found');
+        // Find integration - check if it's a known integration key
+        let integrationKey = leaderboardId;
+        let integration = integrations[integrationKey];
 
-        const integration = integrations[leaderboardId];
-        if (!integration) throw error(400, 'Invalid leaderboard integration');
+        // For admin-created leaderboards, the ID might be like "shock-com-1234567"
+        // so we need to look up the site from Redis
+        let websiteApiKey: string | undefined;
+        let websiteStartDate: Date | undefined;
+        let websiteEndDate: Date | undefined;
 
-        let websiteDetails;
-        for (const board of tenant.websiteLeaderboards) {
+        // Check config leaderboards first
+        let foundInConfig = false;
+        for (const board of creator.websiteLeaderboards) {
             if (normalizeSiteName(board.siteName) === leaderboardId) {
-                websiteDetails = board;
+                websiteApiKey = board.apiKey;
+                websiteStartDate = board.duration.startingDate;
+                websiteEndDate = board.duration.endingDate;
+                foundInConfig = true;
                 break;
             }
         }
-        if (!websiteDetails?.apiKey) throw error(400, 'API key missing');
 
-        const redisBaseKey = getRedisKey(tenantId, leaderboardId);
+        // If not in config, check admin-created leaderboards
+        if (!foundInConfig) {
+            // Try exact ID match first
+            let adminLb = await redis.hgetall(adminKeys.leaderboard(leaderboardId));
+
+            // If not found, scan admin leaderboards by site key
+            // (admin IDs are like "goldpump-com-1234567" but URL uses "goldpump-com")
+            if (!adminLb.site) {
+                const adminLbIds = await redis.smembers(adminKeys.leaderboardsSet);
+                for (const id of adminLbIds) {
+                    const d = await redis.hgetall(adminKeys.leaderboard(id));
+                    if (d.site === leaderboardId) {
+                        adminLb = d;
+                        break;
+                    }
+                }
+            }
+
+            if (adminLb.site && adminLb.apiKey) {
+                integrationKey = adminLb.site;
+                integration = integrations[integrationKey];
+                websiteApiKey = adminLb.apiKey;
+                websiteStartDate = new Date(adminLb.startDate);
+                websiteEndDate = new Date(adminLb.endDate);
+            }
+        }
+
+        if (!integration) throw error(400, 'Invalid leaderboard integration');
+        if (!websiteApiKey) throw error(400, 'API key missing');
+
+        const redisBaseKey = getRedisKey(leaderboardId);
         const redisEntriesKey = `${redisBaseKey}:entries`;
         const ttlSeconds = 900;
 
@@ -56,20 +96,54 @@ export const GET: RequestHandler = async ({ params, url }) => {
 
         let startingDate = redisMeta?.startingDate
             ? new Date(redisMeta.startingDate)
-            : new Date(websiteDetails.duration.startingDate);
+            : new Date(websiteStartDate!);
 
         startingDate = startingDate > startMinus20 ? startMinus20 : startingDate;
 
         let endingDate = redisMeta?.endingDate
             ? new Date(redisMeta.endingDate)
-            : new Date(websiteDetails.duration.endingDate);
+            : new Date(websiteEndDate!);
 
         const duration = redisMeta?.duration
             ? Number(redisMeta.duration)
-            : new Date(websiteDetails.duration.endingDate).getTime() -
-            new Date(websiteDetails.duration.startingDate).getTime();
+            : websiteEndDate!.getTime() - websiteStartDate!.getTime();
 
         if (now > endingDate) {
+            // Snapshot winners before restarting
+            try {
+                // Try cache first, otherwise fetch fresh
+                const cached = await redis.get(redisEntriesKey);
+                let finalEntries: ILeaderboardEntry[];
+                if (cached) {
+                    finalEntries = JSON.parse(cached) as ILeaderboardEntry[];
+                } else {
+                    finalEntries = await fetchLeaderboardData(
+                        websiteApiKey,
+                        integration,
+                        startingDate,
+                        endingDate
+                    );
+                }
+
+                if (finalEntries.length > 0) {
+                    const snapshot = {
+                        entries: finalEntries.map(e => ({
+                            ...e,
+                            username: anonymizeName(e.username)
+                        })),
+                        startingDate: startingDate.toISOString(),
+                        endingDate: endingDate.toISOString(),
+                        snapshotAt: now.toISOString()
+                    };
+                    await redis.set(
+                        adminKeys.winners(leaderboardId),
+                        JSON.stringify(snapshot)
+                    );
+                }
+            } catch (snapshotErr) {
+                console.error('Failed to snapshot winners:', snapshotErr);
+            }
+
             startingDate = startMinus20;
             endingDate = new Date(startingDate.getTime() + duration);
             await redis.del(redisEntriesKey);
@@ -83,7 +157,6 @@ export const GET: RequestHandler = async ({ params, url }) => {
 
         const showPrevious = url.searchParams.get('previous') === 'true';
 
-        // Adjust period for previous leaderboard
         const targetStart = showPrevious
             ? new Date(startingDate.getTime() - duration)
             : startingDate;
@@ -104,7 +177,7 @@ export const GET: RequestHandler = async ({ params, url }) => {
             cachedUntil = new Date(Date.now() + ttl * 1000).toISOString();
         } else {
             leaderboardEntries = await fetchLeaderboardData(
-                websiteDetails.apiKey,
+                websiteApiKey,
                 integration,
                 targetStart,
                 targetEnd
@@ -114,19 +187,12 @@ export const GET: RequestHandler = async ({ params, url }) => {
         }
 
         return json({
-            tenantId,
+            tenantId: TENANT_ID,
             leaderboardId,
-           entries: leaderboardEntries.map(entry => {
-    const isShock = false;
-    const prev = showPrevious;
-
-    return {
-        ...entry,
-        username: !prev && isShock
-            ? "N/A"
-            : anonymizeName(entry.username)
-    };
-}),
+            entries: leaderboardEntries.map(entry => ({
+                ...entry,
+                username: anonymizeName(entry.username)
+            })),
             cachedUntil,
             duration: {
                 startingDate: targetStart,

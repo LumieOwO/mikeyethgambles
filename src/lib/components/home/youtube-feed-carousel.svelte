@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IYoutubeFeed } from '$lib/server/data/types';
+	import type { IYoutubeFeed } from '$lib/types';
 	import { onMount } from 'svelte';
 
 	interface Props {

@@ -1,58 +1,80 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import type { Icreator } from '$lib/server/data/types';
-	import SocialLink from './social-link.svelte';
+	import type { Icreator } from '$lib/types';
 	let { creator }: { creator: Icreator } = $props();
-	const infoLinks: any[] = [
-		/* { label: 'Privacy Policy', href: '/pf' },
-		{ label: 'Terms of Service', href: '/privacy-policy' } */
-	];
 </script>
 
-<footer
-	class="relative z-10 flex min-h-[170px] w-full justify-between overflow-hidden bg-[#040404] p-8"
->
-	<div class="flex flex-col items-start justify-center gap-4 text-start">
-		<Button
-			class="h-0 !p-0 text-[17px] font-semibold"
-			variant="link"
-			target="_blank"
-			href="https://begambleaware.org"
-		>
-			BEGAMBLEAWARE.ORG
-		</Button>
-
-		<p class="text-xs leading-relaxed text-[#777777]">
-			Responsible Gambling Advisory: While gambling can be entertaining, it’s crucial to<br />
-			be aware of the associated risks. Exercise self-control, set limits, and seek support<br />
-			if needed. Enjoy the excitement responsibly and prioritize your well-being. We are<br />
-			not responsible for any losses or damages caused by gambling.
-		</p>
-	</div>
-
-	<div class="grid grid-cols-1 gap-14">
-		{#if infoLinks.length > 0}
-			<div>
-				<h3 class="mb-2 text-xl font-semibold text-white">INFO</h3>
-				<ul class="space-y-2">
-					{#each infoLinks as link}
-						<li>
-							<a class="text-xs text-[#777777] transition-colors hover:text-white" href={link.href}>
-								{link.label}
-							</a>
-						</li>
-					{/each}
-				</ul>
+<footer class="relative z-10 border-t border-[#1e2028] bg-[#0a0c14]">
+	<div class="mx-auto flex max-w-[1400px] flex-col gap-8 px-8 py-12 sm:px-10">
+		<!-- Top row -->
+		<div class="flex flex-wrap items-start justify-between gap-8">
+			<!-- Brand + disclaimer -->
+			<div class="max-w-md space-y-4">
+				<div class="flex items-center gap-3">
+					{#if creator.logoUrl}
+						<img
+							src={creator.logoUrl}
+							alt={creator.name}
+							width="28"
+							height="28"
+							class="rounded-lg object-contain"
+						/>
+					{:else}
+						<div
+							class="flex h-7 w-7 items-center justify-center rounded-lg text-xs font-black text-white"
+							style="background-color: var(--primary-color);"
+						>
+							{creator.name.charAt(0)}
+						</div>
+					{/if}
+					<span class="text-sm font-bold text-white/80">{creator.name}</span>
+				</div>
+				<p class="text-[12px] leading-relaxed text-[#6b7280]">
+					Responsible Gambling Advisory: While gambling can be entertaining, it's crucial to
+					be aware of the associated risks. Exercise self-control, set limits, and seek support
+					if needed. We are not responsible for any losses or damages caused by gambling.
+				</p>
 			</div>
-		{/if}
 
-		<div>
-			<!-- <h3 class="mb-2 text-xl font-semibold text-white">SOCIALS</h3> -->
-			<ul class="hidden w-full justify-end gap-4 lg:flex">
-				{#each creator.socials as social}
-					<SocialLink {...social} />
-				{/each}
-			</ul>
+			<!-- Socials -->
+			<div class="flex flex-col items-end gap-3">
+				<span class="text-[10px] font-semibold uppercase tracking-[1.5px] text-[#4b5063]">Socials</span>
+				<div class="flex items-center gap-2">
+					{#each creator.socials as social}
+						<a
+							href={social.href}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="flex h-9 w-9 items-center justify-center rounded-lg border border-[#2a2d35] bg-[#161820] transition-all duration-200 hover:border-[#3a3d45] hover:bg-[#1e2028]"
+						>
+							<img
+								src={`/images/footer/icons/socials/${social.icon}`}
+								width="16"
+								height="16"
+								alt={social.title}
+								class="opacity-50 transition-opacity hover:opacity-80"
+							/>
+						</a>
+					{/each}
+				</div>
+			</div>
+		</div>
+
+		<!-- Divider -->
+		<div class="h-px bg-[#1e2028]"></div>
+
+		<!-- Bottom row -->
+		<div class="flex flex-wrap items-center justify-between gap-4">
+			<a
+				href="https://begambleaware.org"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-[11px] font-semibold uppercase tracking-wider text-[#4b5063] transition-colors hover:text-[#6b7280]"
+			>
+				BeGambleAware.org
+			</a>
+			<p class="text-[11px] text-[#3a3d4a]">
+				&copy; {new Date().getFullYear()} {creator.name}. All rights reserved.
+			</p>
 		</div>
 	</div>
 </footer>
