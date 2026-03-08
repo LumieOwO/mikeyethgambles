@@ -78,32 +78,6 @@
 	];
 	const glowGradient = `radial-gradient(circle at 50% 40%, ${glowStops.map((s) => `rgba(${primaryRgb}, ${s.alpha}) ${s.pct}%`).join(', ')}, transparent 75%)`;
 
-	// Generate particles programmatically — DRY approach using seed-like math
-	function seededRandom(seed: number): number {
-		const x = Math.sin(seed * 9301 + 49297) * 49297;
-		return x - Math.floor(x);
-	}
-
-	interface Particle {
-		left: number;
-		size: number;
-		duration: number;
-		delay: number;
-		opacity: number;
-	}
-
-	const PARTICLE_COUNT = 30;
-	const particles: Particle[] = Array.from({ length: PARTICLE_COUNT }, (_, i) => {
-		const r = (offset: number) => seededRandom(i * 7 + offset);
-		return {
-			left: r(1) * 90 + 5, // 5% to 95%
-			size: r(2) * 3.8 + 2, // 2px to 5.8px
-			duration: r(3) * 6 + 8, // 8s to 14s
-			delay: -(r(4) * 14), // -0 to -14s stagger
-			opacity: r(5) * 0.45 + 0.2 // 0.2 to 0.65
-		};
-	});
-
 	onMount(async () => {
 		youtubeFeed = await fetchYouTubeFeed();
 	});
@@ -115,24 +89,6 @@
 >
 	<!-- Radial glow background -->
 	<div class="absolute inset-0" style={`background: ${glowGradient}`}></div>
-
-	<!-- Floating particles -->
-	<div class="pointer-events-none absolute inset-0 overflow-hidden">
-		{#each particles as p}
-			<div
-				class="absolute rounded-full"
-				style={`
-					left: ${p.left}%;
-					width: ${p.size}px;
-					height: ${p.size}px;
-					background-color: rgb(${primaryRgb});
-					box-shadow: rgb(${primaryRgb}) 0px 0px ${p.size * 2}px;
-					animation: float-up ${p.duration}s ease-in-out ${p.delay}s infinite;
-					--particle-opacity: ${p.opacity};
-				`}
-			></div>
-		{/each}
-	</div>
 
 	<img
 		alt="penguin"
@@ -153,22 +109,10 @@
 						class="animate-float rounded-xl will-change-transform"
 					/>
 				</div>
-				<div class="entrance flex items-center gap-1" style="--d:150ms">
-					<img
-						width="22"
-						height="18"
-						src={`${homeImagesPath}icons/warning.svg`}
-						alt="warning vector"
-					/>
-					<p class="text-xs text-[#FF9131]">GAMBLE RESPONSIBLY</p>
-				</div>
 			</div>
 			<div class="flex flex-col items-center gap-2">
-				<p
-					class="entrance text-[40px] font-semibold max-[530px]:text-[30px] max-[340px]:text-[24px]"
-					style="--d:300ms"
-				>
-					Hey there, I'm <span class="text-[var(--primary-color)]">{data.creator.name}</span>
+				<p class="entrance text-xl font-semibold md:text-2xl" style="--d:300ms">
+					Welcome to <span class="text-[var(--primary-color)]">{data.creator.name}</span>
 				</p>
 				<p
 					class="entrance text-center text-[17px] font-bold text-[#777777] max-[610px]:text-[12px] max-[530px]:text-[14px]"
@@ -211,19 +155,13 @@
 
 <!-- Below-fold section — partners & cards -->
 <div class="flex w-full flex-col items-center gap-12 pt-[60px] pb-[90px]">
-	<div class="entrance flex flex-col items-center gap-2 text-center" style="--d:700ms">
-		<p
-			class="animate-gradient-flow bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-clip-text text-[30px] font-semibold text-transparent"
-		>
-			Use code "<span
-				class="animate-gradient-flow bg-gradient-to-r from-[#ffcc33] via-[#a87600] to-[#f7db88] bg-clip-text text-transparent"
+	<div class="entrance text-center" style="--d:700ms">
+		<h2 class="mb-2 text-3xl font-black md:text-4xl" style="color: #fef3e2;">EXCLUSIVE BONUSES</h2>
+		<p class="text-[15px] text-[#6b7280]">
+			Use code <span
+				class="animate-gradient-flow bg-gradient-to-r from-[#ffcc33] via-[#a87600] to-[#f7db88] bg-clip-text font-bold text-transparent"
 				>{data.creator.code}</span
-			>"
-		</p>
-		<p
-			class="font-['Source_Code_Pro',monospace] text-[14px] font-semibold tracking-[2px] text-[#6b7280] uppercase"
-		>
-			Current Partners
+			> for the best rewards
 		</p>
 	</div>
 
@@ -268,9 +206,7 @@
 				</div>
 
 				<!-- Row 3: Code box -->
-				<div
-					class="mb-4 flex items-center justify-between rounded-lg bg-[#0a0c14] px-3 py-2"
-				>
+				<div class="mb-4 flex items-center justify-between rounded-lg bg-[#0a0c14] px-3 py-2">
 					<span class="text-xs" style="color: #6b7280;">Code:</span>
 					<div class="flex items-center gap-1">
 						<span class="text-sm font-bold" style={`color: ${card.color};`}>{card.code}</span>

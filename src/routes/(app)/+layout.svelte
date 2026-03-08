@@ -6,7 +6,7 @@
 	let { children, data }: { data: { creator: Icreator }; children: any } = $props();
 
 	const creator = data.creator;
-	const title = `${creator.name} — Leaderboard & Community`;
+	const title = `${creator.name} | VIP Bonuses, Leaderboards & Rewards`;
 	const description = `Enjoy rewards & VIP perks for playing under the code: '${creator.code.toLowerCase()}'`;
 	const url = `https://${creator.name.toLowerCase()}.wagerlb.com`;
 </script>
