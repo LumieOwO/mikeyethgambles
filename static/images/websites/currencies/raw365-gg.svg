@@ -1,0 +1,20 @@
+<svg width="20" fill="#33FF71"  height="22" viewBox="0 0 20 22" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="currencyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color: rgb(96, 255, 144); stop-opacity: 1;" />
+      <stop offset="100%" style="stop-color: rgb(51, 255, 113); stop-opacity: 1;" />
+    </linearGradient>
+    <linearGradient id="fadedGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="100%" style="stop-color: rgb(96, 255, 144); stop-opacity: 1;" />
+      <stop offset="100%" style="stop-color: rgb(51, 255, 113); stop-opacity: 1;" />
+    </linearGradient>
+  </defs>
+
+  <path fill-rule="evenodd" clip-rule="evenodd"
+    d="M12.005.537a4.01 4.01 0 00-4.01 0l-5.99 3.459A4.01 4.01 0 000 7.469v6.916a4.01 4.01 0 002.005 3.474l5.99 3.458a4.01 4.01 0 004.01 0l5.99-3.458A4.01 4.01 0 0020 14.385V7.47a4.01 4.01 0 00-2.005-3.473L12.005.537zM11.587 2.7a3.18 3.18 0 00-3.178 0L3.662 5.437a3.175 3.175 0 00-1.589 2.75v5.476c0 1.134.606 2.182 1.59 2.75l4.746 2.737a3.18 3.18 0 003.178 0l4.746-2.738a3.175 3.175 0 001.59-2.75V8.188a3.175 3.175 0 00-1.59-2.75L11.587 2.7z"
+    fill="url(#currencyGradient)" />
+    
+  <path fill-rule="evenodd"  clip-rule="evenodd"
+    d="M11.191 4.714a2.375 2.375 0 00-2.386 0L5.91 6.394l3.985 2.238 4.091-2.297-2.794-1.621zm3.428 1.99l-2.393 4.26 2.362 4.205.167-.096a2.4 2.4 0 001.193-2.078V8.86a2.4 2.4 0 00-1.193-2.077l-.136-.079zm-.699 8.853l-4.026-2.26-3.92 2.2 2.831 1.644a2.375 2.375 0 002.386 0l2.73-1.584zm-8.668-.479l2.31-4.114-2.341-4.17A2.401 2.401 0 004.049 8.86v4.136c0 .857.455 1.65 1.193 2.078l.01.005z"
+    fill="url(#fadedGradient)" />
+</svg>

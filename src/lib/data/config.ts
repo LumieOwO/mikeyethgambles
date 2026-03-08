@@ -1,0 +1,1 @@
+export const CdnUrl = "https://m-tenants.b-cdn.net/"

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Rounded hex mask with ~12px corner radius in a 100x100 box -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path fill="#fff" d="
+    M 60.37 6.04
+    L 82.63 18.96
+    Q 93 25 93 37
+    L 93 63
+    Q 93 75 82.63 81.04
+    L 60.37 93.96
+    Q 50 100 39.63 93.96
+    L 17.37 81.04
+    Q 7 75 7 63
+    L 7 37
+    Q 7 25 17.37 18.96
+    L 39.63 6.04
+    Q 50 0 60.37 6.04
+    Z"/>
+</svg>
