@@ -221,7 +221,7 @@
 			>"
 		</p>
 		<p
-			class="font-['Source_Code_Pro',monospace] text-[14px] font-semibold tracking-[2px] text-[#a8a29e] uppercase"
+			class="font-['Source_Code_Pro',monospace] text-[14px] font-semibold tracking-[2px] text-[#6b7280] uppercase"
 		>
 			Current Partners
 		</p>
@@ -230,8 +230,8 @@
 	<div class="grid grid-cols-1 justify-center gap-6 px-4 sm:grid-cols-2 lg:grid-cols-3">
 		{#each allCards as card}
 			<div
-				class="entrance grid grid-rows-[auto_1fr_auto_auto] rounded-xl border p-6"
-				style={`--d:${800 + card.i * 120}ms; background-color: rgb(26, 22, 18); border-color: rgba(255, 255, 255, 0.08);`}
+				class="entrance grid grid-rows-[auto_1fr_auto_auto] rounded-xl border border-[#2a2d35] bg-[#111318] p-6"
+				style={`--d:${800 + card.i * 120}ms;`}
 			>
 				<!-- Row 1: Logo -->
 				<div class="mb-4 flex h-10 items-center justify-center">
@@ -246,7 +246,7 @@
 				<div class="mb-4">
 					<div
 						class="mb-2 text-center text-xs font-bold tracking-wider uppercase"
-						style="color: rgb(168, 162, 158);"
+						style="color: #6b7280;"
 					>
 						REWARDS
 					</div>
@@ -269,15 +269,14 @@
 
 				<!-- Row 3: Code box -->
 				<div
-					class="mb-4 flex items-center justify-between rounded-lg px-3 py-2"
-					style="background-color: rgba(0, 0, 0, 0.3);"
+					class="mb-4 flex items-center justify-between rounded-lg bg-[#0a0c14] px-3 py-2"
 				>
-					<span class="text-xs" style="color: rgb(168, 162, 158);">Code:</span>
+					<span class="text-xs" style="color: #6b7280;">Code:</span>
 					<div class="flex items-center gap-1">
 						<span class="text-sm font-bold" style={`color: ${card.color};`}>{card.code}</span>
 						<button
 							class="rounded p-1 transition-colors hover:bg-white/10"
-							style="color: rgb(168, 162, 158);"
+							style="color: #6b7280;"
 							onclick={copyCode}
 						>
 							{#if copiedCode}
