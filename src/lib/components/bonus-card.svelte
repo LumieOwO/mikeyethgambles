@@ -32,7 +32,7 @@
 
 <div
 	class="flex h-full flex-col rounded-xl border p-6"
-	style="background-color: rgb(26, 22, 18); border-color: rgba(255, 255, 255, 0.08);"
+	style="background-color: #111318; border-color: #2a2d35;"
 >
 	<!-- Logo -->
 	{#if logo}
