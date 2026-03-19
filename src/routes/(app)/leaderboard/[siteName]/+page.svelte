@@ -597,9 +597,9 @@
 				> on any partner site for exclusive deposit bonuses and rewards.
 			</p>
 		</div>
-		<div class="flex flex-wrap justify-center gap-6">
+		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 			{#each allCards as card}
-				<div class="w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)]">
+				<div>
 				<BonusCard
 					logo={card.logo}
 					name={card.name}
