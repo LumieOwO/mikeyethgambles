@@ -16,7 +16,7 @@ interface BonusData {
 
 const KNOWN_CASINOS: Record<string, { color: string; logo: string }> = {
     "MM2Wild.com": { color: "#f3b239", logo: "MM2Wild-com" },
-
+    "CSGOWIN.com": { color: "#f59e0b", logo: "csgowin-com" },
 };
 
 export const load: PageServerLoad = async () => {
