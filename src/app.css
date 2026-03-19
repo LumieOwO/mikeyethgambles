@@ -314,6 +314,19 @@
 	animation-delay: var(--d, 0ms);
 }
 
+@keyframes blob-drift-1 {
+	0%, 100% { transform: translate(0, 0); }
+	25% { transform: translate(40px, -30px); }
+	50% { transform: translate(-20px, 20px); }
+	75% { transform: translate(30px, 40px); }
+}
+
+@keyframes blob-drift-2 {
+	0%, 100% { transform: translate(0, 0); }
+	33% { transform: translate(-50px, 25px); }
+	66% { transform: translate(25px, -40px); }
+}
+
 @keyframes float-up {
 	0% {
 		transform: translateY(100vh) scale(0.5);

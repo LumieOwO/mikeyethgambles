@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import BonusCard from '$lib/components/bonus-card.svelte';
 	import type { Icreator, IYoutubeFeed } from '$lib/types';
-	import { formatCurrency, normalizeSiteName } from '$lib/utils';
+	import { normalizeSiteName } from '$lib/utils';
 	import { onMount } from 'svelte';
 	let { data }: { data: { creator: Icreator }; children: any } = $props();
 	const homeImagesPath = '/images/home/';
@@ -54,7 +55,9 @@
 		}));
 	});
 
-	// Convert hex color to rgb components
+	const hasLeaderboards = data.creator.websiteLeaderboards?.length > 0;
+	const firstLb = data.creator.websiteLeaderboards?.[0];
+
 	function hexToRgb(hex: string): string {
 		const h = hex.replace('#', '');
 		const r = parseInt(h.substring(0, 2), 16);
@@ -65,7 +68,6 @@
 
 	const primaryRgb = hexToRgb(data.creator.primaryColor);
 
-	// Generate radial glow gradient stops using primary color
 	const glowStops = [
 		{ pct: 0, alpha: 0.082 },
 		{ pct: 10, alpha: 0.07 },
@@ -78,6 +80,10 @@
 	];
 	const glowGradient = `radial-gradient(circle at 50% 40%, ${glowStops.map((s) => `rgba(${primaryRgb}, ${s.alpha}) ${s.pct}%`).join(', ')}, transparent 75%)`;
 
+	function scrollToBonuses() {
+		document.getElementById('bonuses')?.scrollIntoView({ behavior: 'smooth' });
+	}
+
 	onMount(async () => {
 		youtubeFeed = await fetchYouTubeFeed();
 	});
@@ -89,6 +95,16 @@
 >
 	<!-- Radial glow background -->
 	<div class="absolute inset-0" style={`background: ${glowGradient}`}></div>
+
+	<!-- Moving blobs -->
+	<div
+		class="blob pointer-events-none absolute rounded-full"
+		style={`width: 420px; height: 420px; top: 15%; left: 18%; background: rgba(${primaryRgb}, 0.04); filter: blur(80px); animation: blob-drift-1 20s ease-in-out infinite;`}
+	></div>
+	<div
+		class="blob pointer-events-none absolute rounded-full"
+		style={`width: 350px; height: 350px; top: 35%; right: 12%; background: rgba(${primaryRgb}, 0.03); filter: blur(80px); animation: blob-drift-2 25s ease-in-out infinite;`}
+	></div>
 
 	<img
 		alt="penguin"
@@ -115,16 +131,56 @@
 					Welcome to <span class="text-[var(--primary-color)]">{data.creator.name}</span>
 				</p>
 				<p
-					class="entrance text-center text-[17px] font-bold text-[#777777] max-[610px]:text-[12px] max-[530px]:text-[14px]"
+					class="entrance text-center text-[15px] text-[#6b7280] max-[610px]:text-[12px] max-[530px]:text-[14px]"
 					style="--d:400ms"
 				>
-					{data.creator.description}
+					Use code <span class="font-bold text-[var(--primary-color)]">{data.creator.code}</span> on any partner site for exclusive deposit bonuses and rewards.
 				</p>
+
+				<!-- CTAs -->
+				<div class="entrance mt-4 flex flex-col items-center gap-3 sm:flex-row" style="--d:500ms">
+					<a href="#bonuses" class="group" onclick={(e) => { e.preventDefault(); scrollToBonuses(); }}>
+						<button
+							class="flex cursor-pointer items-center gap-2.5 rounded-xl px-8 py-3.5 text-[15px] font-bold text-white transition-all duration-200 hover:brightness-110"
+							style={`background: linear-gradient(135deg, var(--primary-color), color-mix(in srgb, var(--primary-color) 70%, #000)); box-shadow: 0 0 20px rgba(${primaryRgb}, 0.3), inset 0 1px 0 rgba(255,255,255,0.15);`}
+						>
+							Claim Bonuses
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:translate-x-0.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+						</button>
+					</a>
+					{#if hasLeaderboards}
+						<a href={`/leaderboard/${normalizeSiteName(firstLb.siteName)}`}>
+							<button class="flex cursor-pointer items-center gap-2 rounded-xl border border-[#2a2d35] bg-[#111318]/80 px-7 py-3.5 text-[15px] font-semibold text-[#c4c7d4] backdrop-blur-sm transition-all duration-200 hover:border-[#3a3d45] hover:text-white">
+								View Leaderboards
+							</button>
+						</a>
+					{/if}
+				</div>
+
+				<!-- Code pill -->
+				<button
+					class="entrance mt-2 flex cursor-pointer items-center gap-3 rounded-full border border-[#2a2d35] bg-[#0e1018]/80 px-5 py-2.5 backdrop-blur-sm transition-all duration-200 hover:border-[#3a3d45]"
+					style="--d:600ms"
+					onclick={copyCode}
+				>
+					<span class="text-[13px] text-[#6b7280]">Code:</span>
+					<span class="text-[14px] font-bold" style="color: var(--primary-color);">{data.creator.code}</span>
+					{#if copiedCode}
+						<span class="text-[12px] font-semibold text-emerald-400">Copied!</span>
+					{:else}
+						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+					{/if}
+				</button>
+
+				<!-- Socials -->
 				<div
-					class="mt-4 grid w-[370px] grid-cols-2 justify-items-center gap-3.5 max-[420px]:w-[320px]"
+					class="mt-2 grid w-[370px] grid-cols-2 justify-items-center gap-3.5 max-[420px]:w-[320px]"
 				>
 					{#each data.creator.socials as { cardBackground, href, title, icon }, i}
-						<div class="entrance w-full" style={`--d:${500 + i * 100}ms`}>
+						<div class="entrance w-full" style={`--d:${700 + i * 100}ms`}>
 							<Button
 								{href}
 								target="_blank"
@@ -151,109 +207,45 @@
 		class="animate-gentle-pulse relative max-h-[667px] self-center opacity-0 select-none max-[1750px]:h-[600px] max-[1750px]:w-[400px] max-[1520px]:hidden"
 		src="{homeImagesPath}penguin.png"
 	/>
+
+	<!-- Scroll indicator -->
+	<button
+		class="entrance absolute bottom-8 left-1/2 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-2 border-none bg-transparent opacity-50"
+		style="--d:900ms"
+		onclick={scrollToBonuses}
+	>
+		<span class="text-[11px] font-medium uppercase tracking-[2px] text-[#4b5063]">Scroll</span>
+		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4b5063" stroke-width="2" stroke-linecap="round" class="animate-float">
+			<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>
+		</svg>
+	</button>
 </div>
 
-<!-- Below-fold section — partners & cards -->
-<div class="flex w-full flex-col items-center gap-12 pt-[60px] pb-[90px]">
+<!-- Below-fold section — Exclusive Bonuses -->
+<div id="bonuses" class="flex w-full flex-col items-center gap-12 pt-[60px] pb-[90px]">
 	<div class="entrance text-center" style="--d:700ms">
 		<h2 class="mb-2 text-3xl font-black md:text-4xl" style="color: #fef3e2;">EXCLUSIVE BONUSES</h2>
 		<p class="text-[15px] text-[#6b7280]">
 			Use code <span
 				class="animate-gradient-flow bg-gradient-to-r from-[#ffcc33] via-[#a87600] to-[#f7db88] bg-clip-text font-bold text-transparent"
 				>{data.creator.code}</span
-			> for the best rewards
+			> on any partner site for exclusive deposit bonuses and rewards.
 		</p>
 	</div>
 
-	<div class="grid grid-cols-1 justify-center gap-6 px-4 sm:grid-cols-2 lg:grid-cols-3">
+	<div class="flex flex-wrap justify-center gap-6 px-4">
 		{#each allCards as card}
-			<div
-				class="entrance grid grid-rows-[auto_1fr_auto_auto] rounded-xl border border-[#2a2d35] bg-[#111318] p-6"
-				style={`--d:${800 + card.i * 120}ms;`}
-			>
-				<!-- Row 1: Logo -->
-				<div class="mb-4 flex h-10 items-center justify-center">
-					{#if card.logo}
-						<img alt={card.name} class="h-full object-contain" src={card.logo} />
-					{:else}
-						<span class="text-lg font-bold text-white/80">{card.name}</span>
-					{/if}
-				</div>
-
-				<!-- Row 2: Rewards (stretches to fill) -->
-				<div class="mb-4">
-					<div
-						class="mb-2 text-center text-xs font-bold tracking-wider uppercase"
-						style="color: #6b7280;"
-					>
-						REWARDS
-					</div>
-					<div class="space-y-1">
-						{#if card.mainReward}
-							<div class="text-center text-sm font-bold" style="color: #fef3e2;">
-								{card.mainReward}
-							</div>
-						{/if}
-						{#each card.rewardLines as line}
-							<div class="text-center text-xs" style="color: #fef3e2;">
-								{line}
-							</div>
-						{/each}
-						{#if !card.mainReward && card.rewardLines.length === 0}
-							<div class="text-center text-sm font-bold" style="color: #fef3e2;">COMING SOON</div>
-						{/if}
-					</div>
-				</div>
-
-				<!-- Row 3: Code box -->
-				<div class="mb-4 flex items-center justify-between rounded-lg bg-[#0a0c14] px-3 py-2">
-					<span class="text-xs" style="color: #6b7280;">Code:</span>
-					<div class="flex items-center gap-1">
-						<span class="text-sm font-bold" style={`color: ${card.color};`}>{card.code}</span>
-						<button
-							class="rounded p-1 transition-colors hover:bg-white/10"
-							style="color: #6b7280;"
-							onclick={copyCode}
-						>
-							{#if copiedCode}
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="14"
-									height="14"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-								>
-									<polyline points="20 6 9 17 4 12"></polyline>
-								</svg>
-							{:else}
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="14"
-									height="14"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-								>
-									<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-									<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-								</svg>
-							{/if}
-						</button>
-					</div>
-				</div>
-
-				<!-- Row 4: CTA Button -->
-				<a href={card.href} target="_blank" rel="noopener noreferrer">
-					<button
-						class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-6 py-2.5 text-sm font-semibold text-black"
-						style={`background-color: ${card.color}; box-shadow: rgba(255,255,255,0.3) 0px 2px 0px 0px inset, rgba(0,0,0,0.04) 0px 4px 6px;`}
-					>
-						CLAIM BONUS
-					</button>
-				</a>
+			<div class="entrance w-full" style={`--d:${800 + card.i * 120}ms;`}>
+				<BonusCard
+					logo={card.logo}
+					name={card.name}
+					color={card.color}
+					code={card.code}
+					href={card.href}
+					mainReward={card.mainReward}
+					rewardLines={card.rewardLines}
+					onCopyCode={copyCode}
+				/>
 			</div>
 		{/each}
 	</div>

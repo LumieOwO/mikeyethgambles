@@ -4,6 +4,7 @@
 	import { formatCurrency, normalizeSiteName } from '$lib/utils';
 	import { page } from '$app/stores';
 	import Countdown from '$lib/components/countdown.svelte';
+	import BonusCard from '$lib/components/bonus-card.svelte';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import NumberFlow from '@number-flow/svelte';
@@ -141,6 +142,23 @@
 
 	// Skeleton podium order: 2nd, 1st, 3rd
 	const skeletonPodium = [2, 1, 3];
+
+	let allCards = $derived.by(() => {
+		return (data.creator.bonuses ?? []).map((b, i) => ({
+			logo: b.logoUrl || '',
+			name: b.casino,
+			color: b.color || '#ffffff',
+			code: b.code,
+			href: b.href,
+			mainReward: b.mainBonus || '',
+			rewardLines: b.extraBonus ? [b.extraBonus] : [],
+			i
+		}));
+	});
+
+	function copyCode() {
+		navigator.clipboard.writeText(data.creator.code);
+	}
 </script>
 
 <div class="mx-auto w-full max-w-[1100px] px-4 pt-[80px] pb-[100px]">
@@ -566,6 +584,37 @@
 		</div>
 	{/if}
 </div>
+
+<!-- Bonus Cards below leaderboard -->
+{#if allCards.length > 0}
+	<div class="mx-auto w-full max-w-[1100px] px-4 pb-[100px]">
+		<div class="mb-8 text-center">
+			<h2 class="mb-2 text-2xl font-black md:text-3xl" style="color: #fef3e2;">EXCLUSIVE BONUSES</h2>
+			<p class="text-[14px] text-[#6b7280]">
+				Use code <span
+					class="animate-gradient-flow bg-gradient-to-r from-[#ffcc33] via-[#a87600] to-[#f7db88] bg-clip-text font-bold text-transparent"
+					>{data.creator.code}</span
+				> on any partner site for exclusive deposit bonuses and rewards.
+			</p>
+		</div>
+		<div class="flex flex-wrap justify-center gap-6">
+			{#each allCards as card}
+				<div class="w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)]">
+				<BonusCard
+					logo={card.logo}
+					name={card.name}
+					color={card.color}
+					code={card.code}
+					href={card.href}
+					mainReward={card.mainReward}
+					rewardLines={card.rewardLines}
+					onCopyCode={copyCode}
+				/>
+				</div>
+			{/each}
+		</div>
+	</div>
+{/if}
 
 <style>
 	.skeleton-pulse {
