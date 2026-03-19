@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui/button';
+
 	let {
 		logo,
 		name,
@@ -29,7 +31,7 @@
 </script>
 
 <div
-	class="rounded-xl border p-6"
+	class="flex h-full flex-col rounded-xl border p-6"
 	style="background-color: rgb(26, 22, 18); border-color: rgba(255, 255, 255, 0.08);"
 >
 	<!-- Logo -->
@@ -42,7 +44,7 @@
 	{/if}
 
 	<!-- Rewards -->
-	<div class="mb-4">
+	<div class="mb-4 flex-1">
 		<div class="mb-2 text-center text-xs font-bold uppercase tracking-wider" style="color: rgb(168, 162, 158);">
 			REWARDS
 		</div>
@@ -79,12 +81,12 @@
 	</div>
 
 	<!-- CTA Button -->
-	<a href={href} target="_blank" rel="noopener noreferrer">
-		<button
-			class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-6 py-2.5 text-sm font-semibold text-black"
-			style={`background-color: ${color}; box-shadow: rgba(255,255,255,0.3) 0px 2px 0px 0px inset, rgba(0,0,0,0.04) 0px 4px 6px;`}
-		>
-			CLAIM BONUS
-		</button>
-	</a>
+	<Button
+		{href}
+		target="_blank"
+		class="w-full rounded-lg text-sm font-semibold text-black shadow-none"
+		style={`background-color: ${color};`}
+	>
+		CLAIM BONUS
+	</Button>
 </div>

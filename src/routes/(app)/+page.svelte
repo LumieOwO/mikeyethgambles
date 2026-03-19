@@ -235,7 +235,7 @@
 
 	<div class="flex flex-wrap justify-center gap-6 px-4">
 		{#each allCards as card}
-			<div class="entrance w-full" style={`--d:${800 + card.i * 120}ms;`}>
+			<div class="entrance w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)]" style={`--d:${800 + card.i * 120}ms;`}>
 				<BonusCard
 					logo={card.logo}
 					name={card.name}
