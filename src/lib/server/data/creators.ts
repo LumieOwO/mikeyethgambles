@@ -74,26 +74,14 @@ export const creator: Icreator = {
     // --- Your leaderboards (add/remove/edit as needed) ---
     // Each leaderboardConfig call: (site, code, startDate, endDate, apiKey, prizes, wageredDetails)
     websiteLeaderboards: [
-        /*         leaderboardConfig(
-                    "goldpump-com",
-                    "Clyde",
-                    "2025-12-17T05:00:00.000Z",         // <-- start date
-                    "2026-01-01T05:00:00.000Z",          // <-- end date
-                    "your-goldpump-api-key-here",         // <-- API key
-                    {                                     // <-- prizes per place (set to null for no prizes)
-                        1: 230_000,
-                        2: 145_000,
-                        3: 117_500,
-                        4: 80_000,
-                        5: 50_000,
-                        6: 45_000,
-                        7: 32_500,
-                    },
-                    {
-                        shouldShowIcon: true,
-                    },
-                    ["100% AFFILIATE KICKBACK", "15% DEPOSIT BONUS"]
-                ), */
-
+        leaderboardConfig(
+            "csgowin-com",
+            "Clyde",
+            "2026-01-01T00:00:00.000Z",          // placeholder — dates come from CSGOWIN API
+            "2099-01-01T00:00:00.000Z",           // placeholder — dates come from CSGOWIN API
+            "clyde:b6b060ef7a",                    // format: code:apikey
+            null,                                  // prizes come from CSGOWIN API
+            { shouldShowIcon: false, wagerName: "Wagered" },
+        ),
     ],
 };

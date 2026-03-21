@@ -28,6 +28,7 @@
 				entries: ILeaderboardEntry[];
 				cachedUntil: number;
 				prize: string;
+				prizes?: Record<number, number>;
 				duration: any;
 		  } = $state();
 
@@ -42,20 +43,41 @@
 		)
 	);
 
+	// Prefer API-provided prizes (e.g. CSGOWIN) over static config prizes
+	let activePrizes = $derived(
+		leaderboardDate?.prizes ?? leaderboardEntry?.prizes ?? {}
+	);
+
 	let totalPrize = $derived(
-		Object.values(leaderboardEntry?.prizes ?? {}).reduce((sum, val) => sum + val, 0)
+		Object.values(activePrizes).reduce((sum, val) => sum + val, 0)
 	);
 
 	// How many rows to show in the table: max(5, count of prizes > 0)
 	let tableRowCount = $derived.by(() => {
-		const prizes = leaderboardEntry?.prizes ?? {};
-		const positivePrizes = Object.values(prizes).filter((v) => v > 0).length;
+		const positivePrizes = Object.values(activePrizes).filter((v) => v > 0).length;
 		return Math.max(5, positivePrizes);
+	});
+
+	const placeholderEntry: ILeaderboardEntry = {
+		id: 'placeholder',
+		username: 'Unknown',
+		avatar: 'https://api.dicebear.com/7.x/thumbs/svg?seed=unknown',
+		totalWagered: 0
+	};
+
+	// Pad entries to at least the number of prize slots so prizes are always visible
+	let paddedEntries = $derived.by(() => {
+		const entries = [...(leaderboardDate?.entries ?? [])];
+		const prizeCount = Object.keys(activePrizes).length;
+		while (entries.length < prizeCount) {
+			entries.push({ ...placeholderEntry, id: `placeholder-${entries.length}` });
+		}
+		return entries;
 	});
 
 	// Top 3 in display order: 2nd, 1st, 3rd
 	let topThree = $derived.by(() => {
-		const sorted = [...(leaderboardDate?.entries ?? [])]
+		const sorted = [...paddedEntries]
 			.sort((a, b) => b.totalWagered - a.totalWagered)
 			.slice(0, 3);
 		if (sorted.length < 3) return sorted.map((u, i) => ({ ...u, place: i + 1 }));
@@ -133,7 +155,7 @@
 	});
 
 	function getPrize(place: number): number {
-		return leaderboardEntry?.prizes?.[place] ?? 0;
+		return activePrizes[place] ?? 0;
 	}
 
 	function renderCurrency(amount: number, decimals = 2): string {
@@ -479,7 +501,7 @@
 			</div>
 
 			<div class="flex flex-col gap-[5px]">
-				{#each (leaderboardDate?.entries ?? []).slice(0, tableRowCount) as user, i}
+				{#each paddedEntries.slice(0, tableRowCount) as user, i}
 					{@const place = i + 1}
 					{@const prize = getPrize(place)}
 					<div

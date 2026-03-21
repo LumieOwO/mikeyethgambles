@@ -12,6 +12,7 @@ export interface IIntegrationApi {
         siteName: string,
         highlightedWord: string
     };
+    getMeta?: (data: any) => { startDate: Date; endDate: Date; prizes: Record<number, number> } | null;
 }
 
 export const integrations: Record<string, IIntegrationApi> = {
@@ -117,6 +118,49 @@ export const integrations: Record<string, IIntegrationApi> = {
 
         }
     },
-
-
+    "csgowin-com": {
+        frontendDetails: (code: string) => ({
+            primaryColor: "#f59e0b",
+            href: `https://csgowin.com/r/${code}`,
+            siteName: "CSGOWIN.com",
+            highlightedWord: "CSGOWIN"
+        }),
+        getWagers: async (apiKey) => {
+            const [code, key] = apiKey.split(':');
+            const res = await fetch(`https://api.csgowin.com/api/leaderboard/${code}`, {
+                headers: { 'x-apikey': key }
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`Failed to fetch CSGOWIN data: ${res.status} ${res.statusText} - ${text}`);
+            }
+            const data = await res.json();
+            return data.leaderboards?.[0] ?? null;
+        },
+        normalize: (data: any) => {
+            if (!data?.users) return [];
+            return data.users
+                .filter((u: any) => !u.hidden)
+                .map((user: any, idx: number) => ({
+                    id: user.uuid || String(idx),
+                    username: user.name || "Anonymous",
+                    avatar: user.steam_avatar || `https://api.dicebear.com/7.x/thumbs/svg?seed=${user.name || idx}`,
+                    totalWagered: Number(user.wagered) || 0
+                }));
+        },
+        getMeta: (data: any) => {
+            if (!data) return null;
+            const prizes: Record<number, number> = {};
+            if (Array.isArray(data.prizes)) {
+                data.prizes.forEach((amount: number, idx: number) => {
+                    prizes[idx + 1] = amount;
+                });
+            }
+            return {
+                startDate: new Date(data.dateStart),
+                endDate: new Date(data.dateEnd),
+                prizes
+            };
+        }
+    },
 };

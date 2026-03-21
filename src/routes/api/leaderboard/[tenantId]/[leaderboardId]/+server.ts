@@ -11,16 +11,23 @@ const TENANT_ID = "clyde";
 const getRedisKey = (leaderboardId: string) =>
     `tenant:${TENANT_ID}:leaderboard:${leaderboardId}`;
 
+interface FetchResult {
+    entries: ILeaderboardEntry[];
+    meta?: { startDate: Date; endDate: Date; prizes: Record<number, number> } | null;
+}
+
 const fetchLeaderboardData = async (
     apiKey: string,
     integration: typeof integrations[string],
     start: Date,
     end: Date
-): Promise<ILeaderboardEntry[]> => {
+): Promise<FetchResult> => {
     const data = await integration.getWagers(apiKey, start, end);
-    return integration
+    const entries = integration
         .normalize(data)
         .sort((a, b) => b.totalWagered - a.totalWagered);
+    const meta = integration.getMeta?.(data) ?? null;
+    return { entries, meta };
 };
 
 function anonymizeName(name: string | undefined): string {
@@ -117,12 +124,13 @@ export const GET: RequestHandler = async ({ params, url }) => {
                 if (cached) {
                     finalEntries = JSON.parse(cached) as ILeaderboardEntry[];
                 } else {
-                    finalEntries = await fetchLeaderboardData(
+                    const result = await fetchLeaderboardData(
                         websiteApiKey,
                         integration,
                         startingDate,
                         endingDate
                     );
+                    finalEntries = result.entries;
                 }
 
                 if (finalEntries.length > 0) {
@@ -169,19 +177,42 @@ export const GET: RequestHandler = async ({ params, url }) => {
 
         let leaderboardEntries: ILeaderboardEntry[];
         let cachedUntil: string;
+        let apiPrizes: Record<number, number> | undefined;
 
         const cached = await redis.get(cacheKey);
+        const cachedPrizes = await redis.get(`${redisBaseKey}:prizes`);
+        if (cachedPrizes) {
+            apiPrizes = JSON.parse(cachedPrizes);
+        }
         if (cached) {
             leaderboardEntries = JSON.parse(cached) as ILeaderboardEntry[];
             const ttl = await redis.ttl(cacheKey);
             cachedUntil = new Date(Date.now() + ttl * 1000).toISOString();
         } else {
-            leaderboardEntries = await fetchLeaderboardData(
+            const result = await fetchLeaderboardData(
                 websiteApiKey,
                 integration,
                 targetStart,
                 targetEnd
             );
+            leaderboardEntries = result.entries;
+
+            // Use API-provided dates/prizes when available (e.g. CSGOWIN)
+            if (result.meta) {
+                if (!showPrevious) {
+                    startingDate = result.meta.startDate;
+                    endingDate = result.meta.endDate;
+
+                    // Persist API-provided dates back to Redis
+                    await redis.hset(redisBaseKey, {
+                        startingDate: startingDate.toISOString(),
+                        endingDate: endingDate.toISOString(),
+                    });
+                }
+                apiPrizes = result.meta.prizes;
+                await redis.set(`${redisBaseKey}:prizes`, JSON.stringify(apiPrizes), 'EX', ttlSeconds);
+            }
+
             await redis.set(cacheKey, JSON.stringify(leaderboardEntries), 'EX', ttlSeconds);
             cachedUntil = new Date(Date.now() + ttlSeconds * 1000).toISOString();
         }
@@ -194,9 +225,10 @@ export const GET: RequestHandler = async ({ params, url }) => {
                 username: anonymizeName(entry.username)
             })),
             cachedUntil,
+            ...(apiPrizes ? { prizes: apiPrizes } : {}),
             duration: {
-                startingDate: targetStart,
-                endingDate: targetEnd,
+                startingDate: showPrevious ? targetStart : startingDate,
+                endingDate: showPrevious ? targetEnd : endingDate,
                 duration
             }
         });
