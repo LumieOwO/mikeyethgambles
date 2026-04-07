@@ -233,7 +233,7 @@
 		</p>
 	</div>
 
-	<div class="grid grid-cols-1 gap-6 px-4 sm:grid-cols-2 lg:grid-cols-4">
+	<div class="flex flex-wrap justify-center gap-6 px-4">
 		{#each allCards as card}
 			<div class="entrance" style={`--d:${800 + card.i * 120}ms;`}>
 				<BonusCard

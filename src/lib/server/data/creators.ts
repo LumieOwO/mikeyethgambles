@@ -54,8 +54,8 @@ function leaderboardConfig(
 
 export const creator: Icreator = {
     // --- Your name and referral code ---
-    name: "Clyde",
-    code: "Clyde",
+    name: "Mikey",
+    code: "Mikey",
 
     // --- Your brand color (hex) ---
     primaryColor: "#5170FF",
@@ -65,23 +65,28 @@ export const creator: Icreator = {
         "Exclusive Rewards, Giveaways & Leaderboards",
 
     // --- Your social links (add/remove as needed) ---
-    socials: [
-        
-        // createSocial("twitter", "@ClydeGambles", "https://twitter.com/ClydeGambles"),
-        // createSocial("discord", "ClydeGambles", "https://discord.gg/your-invite"),
-    ],
+    socials: [],
 
     // --- Your leaderboards (add/remove/edit as needed) ---
     // Each leaderboardConfig call: (site, code, startDate, endDate, apiKey, prizes, wageredDetails)
     websiteLeaderboards: [
         leaderboardConfig(
-            "csgowin-com",
-            "Clyde",
-            "2026-01-01T00:00:00.000Z",          // placeholder — dates come from CSGOWIN API
-            "2099-01-01T00:00:00.000Z",           // placeholder — dates come from CSGOWIN API
-            "clyde:b6b060ef7a",                    // format: code:apikey
-            null,                                  // prizes come from CSGOWIN API
-            { shouldShowIcon: false, wagerName: "Wagered" },
+            "harvester-gg",
+            "Mikey",
+            "2026-04-05T00:00:00.000Z",
+            "2026-04-12T00:00:00.000Z",
+            "f02144d6debbdb6ba227b76dc25ce1107b7ce473b90962ff64e36600f7cdc88d",
+            {
+                1: 140,
+                2: 90,
+                3: 60,
+                4: 40,
+                5: 30,
+                6: 20,
+                7: 10,
+                8: 10,
+            },
+            { shouldShowIcon: true, wagerName: "Wagered" },
         ),
     ],
 };

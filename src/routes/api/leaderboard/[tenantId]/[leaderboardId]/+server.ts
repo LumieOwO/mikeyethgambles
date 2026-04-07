@@ -6,7 +6,7 @@ import { normalizeSiteName } from '$lib/utils';
 import type { ILeaderboardEntry } from '$lib/types';
 import { adminKeys } from '$lib/server/admin/redis-keys';
 
-const TENANT_ID = "clyde";
+const TENANT_ID = "mikey";
 
 const getRedisKey = (leaderboardId: string) =>
     `tenant:${TENANT_ID}:leaderboard:${leaderboardId}`;

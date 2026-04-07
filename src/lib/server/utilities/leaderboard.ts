@@ -2,7 +2,7 @@ import { normalizeSiteName } from "$lib/utils"
 import type { Icreator } from "$lib/types"
 import { redis } from "../redis"
 
-const TENANT_ID = "clyde";
+const TENANT_ID = "mikey";
 
 export async function createLeaderboard(
   leaderboardId: string,

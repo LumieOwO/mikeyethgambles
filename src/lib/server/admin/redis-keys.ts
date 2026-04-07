@@ -1,4 +1,4 @@
-const TENANT = "clyde";
+const TENANT = "mikey";
 
 export const adminKeys = {
     socials: `tenant:${TENANT}:admin:socials`,

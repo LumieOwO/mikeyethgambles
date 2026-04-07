@@ -118,6 +118,57 @@ export const integrations: Record<string, IIntegrationApi> = {
 
         }
     },
+    "harvester-gg": {
+        frontendDetails: (code: string) => ({
+            primaryColor: "#4ade80",
+            href: `https://harvester.gg`,
+            siteName: "Harvester.gg",
+            highlightedWord: "Harvester"
+        }),
+        getWagers: async (apiKey, startingDate, endTime) => {
+            const allUsers: any[] = [];
+            let page = 1;
+            let hasNextPage = true;
+
+            while (hasNextPage) {
+                const body = {
+                    secretKey: apiKey,
+                    pagination: { limit: 50, page },
+                    timestamps: {
+                        start: Math.floor(startingDate.getTime() / 1000),
+                        end: Math.floor(endTime.getTime() / 1000)
+                    }
+                };
+
+                const res = await fetch("https://api.harvester.gg/api/v1/affiliates/secret-key", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(`Failed to fetch Harvester data: ${res.status} ${res.statusText} - ${text}`);
+                }
+
+                const data = await res.json();
+                allUsers.push(...(data.data?.users ?? []));
+                hasNextPage = data.data?.pagination?.hasNextPage ?? false;
+                page++;
+            }
+
+            return allUsers;
+        },
+        normalize: (data: any) => {
+            if (!Array.isArray(data)) return [];
+            return data.map((user: any, idx: number) => ({
+                id: user.username || String(idx),
+                username: user.username || `User${idx + 1}`,
+                avatar: user.avatar || `https://api.dicebear.com/7.x/thumbs/svg?seed=${user.username || idx}`,
+                totalWagered: Number(user.wagered) || 0
+            }));
+        }
+    },
     "csgowin-com": {
         frontendDetails: (code: string) => ({
             primaryColor: "#f59e0b",

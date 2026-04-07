@@ -26,6 +26,7 @@ interface SiteStats {
 // Key = normalized site ID. Value = how many USD per 1 unit of site currency.
 const USD_RATES: Record<string, number> = {
     "goldpump-com": 2.1 / 1000, // 1,000 GoldPump currency = $2.10
+    "harvester-gg": 1 / 1.45,   // 1.45 coins = $1
 };
 
 export const load: PageServerLoad = async () => {
@@ -34,7 +35,7 @@ export const load: PageServerLoad = async () => {
     // Fetch from hardcoded leaderboards
     for (const lb of creator.websiteLeaderboards) {
         const lbId = normalizeSiteName(lb.siteName);
-        const cacheKey = `tenant:clyde:leaderboard:${lbId}:entries`;
+        const cacheKey = `tenant:mikey:leaderboard:${lbId}:entries`;
         const cached = await redis.get(cacheKey);
 
         let entries: ILeaderboardEntry[] = [];
@@ -75,7 +76,7 @@ export const load: PageServerLoad = async () => {
         const lbData = await redis.hgetall(adminKeys.leaderboard(lbId));
         if (!lbData.site) continue;
 
-        const cacheKey = `tenant:clyde:leaderboard:${lbId}:entries`;
+        const cacheKey = `tenant:mikey:leaderboard:${lbId}:entries`;
         const cached = await redis.get(cacheKey);
 
         if (cached) {

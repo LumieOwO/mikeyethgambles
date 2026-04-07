@@ -31,12 +31,12 @@
 </script>
 
 <div
-	class="flex h-full flex-col rounded-xl border p-6"
+	class="flex w-[350px] flex-col rounded-xl border p-6"
 	style="background-color: #111318; border-color: #2a2d35;"
 >
 	<!-- Logo -->
 	{#if logo}
-		<img alt={name} class="mx-auto mb-4 h-10 object-contain" src={logo} />
+		<img alt={name} class="mx-auto mb-4 w-[180px] h-[70px] object-contain" src={logo} />
 	{:else}
 		<div class="mb-4 flex h-10 items-center justify-center">
 			<span class="text-base font-bold text-white/80">{name}</span>

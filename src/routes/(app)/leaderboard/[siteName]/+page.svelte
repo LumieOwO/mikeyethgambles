@@ -13,6 +13,7 @@
 
 	let previous = $state(false);
 	let hasIcon = $state(true);
+	let iconExt = $state('svg');
 	let siteName = $state($page.params.siteName ?? '');
 	let normalizedParam = $derived(normalizeSiteName(siteName));
 
@@ -150,6 +151,7 @@
 			loading = true;
 			secondsLeft = 0;
 			hasIcon = true;
+			iconExt = 'svg';
 			fetchLeaderboard();
 		}
 	});
@@ -256,15 +258,15 @@
 			class="mb-2 flex items-center justify-center gap-3 text-[8px] font-black max-sm:text-[32px] md:text-[42px]"
 		>
 			<span
-				class="text-[var(--primary-color)]"
+				class="flex items-center justify-center text-[var(--primary-color)]"
 				style="text-shadow: 0 0 40px color-mix(in srgb, var(--primary-color) 19%, transparent);"
 			>
 				{#if hasIcon}
 					<img
-						src={`/images/websites/currencies/${normalizeSiteName(siteName)}.svg`}
+						src={`/images/websites/currencies/${normalizeSiteName(siteName)}.${iconExt}`}
 						alt="currency"
-						class="mr-1 inline-block h-[0.6em] w-auto align-middle"
-						onerror={() => (hasIcon = false)}
+						class="mr-1 w-[35px] h-[35px] object-contain"
+						onerror={() => { if (iconExt === 'svg') iconExt = 'png'; else hasIcon = false; }}
 					/>
 				{:else}
 					$
@@ -434,11 +436,11 @@
 								{#if leaderboardEntry?.wageredDetails?.shouldShowIcon}
 									{#if hasIcon}
 										<img
-											src={`/images/websites/currencies/${normalizeSiteName(siteName)}.svg`}
+											src={`/images/websites/currencies/${normalizeSiteName(siteName)}.${iconExt}`}
 											alt="currency"
 											width="14"
 											height="14"
-											onerror={() => (hasIcon = false)}
+											onerror={() => { if (iconExt === 'svg') iconExt = 'png'; else hasIcon = false; }}
 										/>
 									{:else}
 										$
@@ -458,11 +460,11 @@
 								>
 									{#if hasIcon}
 										<img
-											src={`/images/websites/currencies/${normalizeSiteName(siteName)}.svg`}
+											src={`/images/websites/currencies/${normalizeSiteName(siteName)}.${iconExt}`}
 											alt="currency"
 											width="12"
 											height="12"
-											onerror={() => (hasIcon = false)}
+											onerror={() => { if (iconExt === 'svg') iconExt = 'png'; else hasIcon = false; }}
 										/>
 									{:else}
 										$
@@ -557,11 +559,11 @@
 								{#if leaderboardEntry?.wageredDetails?.shouldShowIcon}
 									{#if hasIcon}
 										<img
-											src={`/images/websites/currencies/${normalizeSiteName(siteName)}.svg`}
+											src={`/images/websites/currencies/${normalizeSiteName(siteName)}.${iconExt}`}
 											alt="currency"
 											width="13"
 											height="13"
-											onerror={() => (hasIcon = false)}
+											onerror={() => { if (iconExt === 'svg') iconExt = 'png'; else hasIcon = false; }}
 										/>
 									{:else}
 										$
@@ -585,11 +587,11 @@
 								>
 									{#if hasIcon}
 										<img
-											src={`/images/websites/currencies/${normalizeSiteName(siteName)}.svg`}
+											src={`/images/websites/currencies/${normalizeSiteName(siteName)}.${iconExt}`}
 											alt="currency"
 											width="13"
 											height="13"
-											onerror={() => (hasIcon = false)}
+											onerror={() => { if (iconExt === 'svg') iconExt = 'png'; else hasIcon = false; }}
 										/>
 									{:else}
 										$
@@ -619,7 +621,7 @@
 				> on any partner site for exclusive deposit bonuses and rewards.
 			</p>
 		</div>
-		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+		<div class="flex flex-wrap justify-center gap-6 px-4">
 			{#each allCards as card}
 				<div>
 				<BonusCard
