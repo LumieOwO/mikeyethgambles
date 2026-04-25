@@ -152,8 +152,10 @@ export const GET: RequestHandler = async ({ params, url }) => {
                 console.error('Failed to snapshot winners:', snapshotErr);
             }
 
-            startingDate = startMinus20;
-            endingDate = new Date(startingDate.getTime() + duration);
+            while (endingDate <= now) {
+                startingDate = endingDate;
+                endingDate = new Date(startingDate.getTime() + duration);
+            }
             await redis.del(redisEntriesKey);
         }
 

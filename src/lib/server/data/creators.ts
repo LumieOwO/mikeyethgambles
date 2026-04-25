@@ -88,5 +88,14 @@ export const creator: Icreator = {
             },
             { shouldShowIcon: true, wagerName: "Wagered" },
         ),
+        leaderboardConfig(
+            "clash-gg",
+            "Mikey",
+            "2026-04-22T18:00:00.000Z",
+            "2026-05-06T18:00:00.000Z",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoicGFzcyIsInNjb3BlIjoiYWZmaWxpYXRlcyIsInVzZXJJZCI6NTAyOTg5NywiaWF0IjoxNzc3MTQyNzM4LCJleHAiOjE5MzQ5MzA3Mzh9.UPlNWB_5OJ6TD7kz6NLZcehS-hr2oWg23zXV8uN40mA",
+            null,
+            { shouldShowIcon: true, wagerName: "Wagered" },
+        ),
     ],
 };

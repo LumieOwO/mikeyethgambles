@@ -139,7 +139,7 @@ export const integrations: Record<string, IIntegrationApi> = {
                         end: Math.floor(endTime.getTime() / 1000)
                     }
                 };
-
+                console.log(body)
                 const res = await fetch("https://api.harvester.gg/api/v1/affiliates/secret-key", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -167,6 +167,57 @@ export const integrations: Record<string, IIntegrationApi> = {
                 avatar: user.avatar || `https://api.dicebear.com/7.x/thumbs/svg?seed=${user.username || idx}`,
                 totalWagered: Number(user.wagered) || 0
             }));
+        }
+    },
+    "clash-gg": {
+        frontendDetails: (code: string) => ({
+            primaryColor: "#FFC83D",
+            href: `https://clash.gg/r/${code}`,
+            siteName: "Clash.gg",
+            highlightedWord: "Clash"
+        }),
+        getWagers: async (apiKey, startingDate) => {
+            const since = startingDate.toISOString().slice(0, 10);
+            const url = `https://api.clash.gg/affiliates/leaderboards/my-leaderboards-api?date=${since}`;
+            const res = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                    Cookie: "let-me-in=top-secret-cookie-do-not-share"
+                }
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`Failed to fetch Clash data: ${res.status} ${res.statusText} - ${text}`);
+            }
+            const json = await res.json();
+            const boards: any[] = json?.data ?? [];
+            return boards.find(b => b.status === "LIVE") ?? boards[0] ?? null;
+        },
+        normalize: (data: any) => {
+            if (!data?.topPlayers) return [];
+            return data.topPlayers.map((user: any, idx: number) => {
+                const avatar = user.avatar?.startsWith("/")
+                    ? `https://clash.gg${user.avatar}`
+                    : user.avatar || `https://api.dicebear.com/7.x/thumbs/svg?seed=${user.name || idx}`;
+                return {
+                    id: String(user.userId ?? idx),
+                    username: user.name || `User${idx + 1}`,
+                    avatar,
+                    totalWagered: (Number(user.wagered) || 0) / 100
+                };
+            });
+        },
+        getMeta: (data: any) => {
+            if (!data) return null;
+            const startDate = new Date(data.startDate);
+            const endDate = new Date(startDate.getTime() + Number(data.durationDays || 0) * 86400000);
+            const prizes: Record<number, number> = {};
+            if (Array.isArray(data.rewards)) {
+                data.rewards.forEach((r: any, idx: number) => {
+                    prizes[idx + 1] = Number(r.amount) / 100;
+                });
+            }
+            return { startDate, endDate, prizes };
         }
     },
     "csgowin-com": {
